@@ -11,6 +11,7 @@ phases:
       nodejs: 20
     commands:
       - echo Installing dependencies...
+      - cd library-recommendation-system
       - npm install
   build:
     commands:
@@ -19,8 +20,8 @@ phases:
 artifacts:
   files:
     - '**/*'
-  base-directory: dist
+  base-directory: library-recommendation-system/dist
 cache:
   paths:
-    - 'node_modules/**/*'
+    - 'library-recommendation-system/node_modules/**/*'
 
