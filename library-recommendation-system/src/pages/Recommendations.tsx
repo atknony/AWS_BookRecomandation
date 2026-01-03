@@ -30,10 +30,7 @@ export function Recommendations() {
 
     setIsLoading(true);
     try {
-      // TODO: Replace with actual Bedrock API call
-      // This will call Lambda function that uses Amazon Bedrock
-      // to generate personalized recommendations based on the query
-      const recs = await getRecommendations();
+      const recs = await getRecommendations(query);
       setRecommendations(recs);
 
       // Fetch full book details for each recommendation
@@ -156,7 +153,10 @@ export function Recommendations() {
                         alt={book.title}
                         className="w-28 h-40 object-cover rounded-xl shadow-lg"
                         onError={(e) => {
-                          e.currentTarget.src = 'https://via.placeholder.com/112x160?text=No+Cover';
+                          const target = e.currentTarget;
+                          if (!target.src.includes('data:image/svg+xml')) {
+                            target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTEyIiBoZWlnaHQ9IjE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTEyIiBoZWlnaHQ9IjE2MCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBDb3ZlcjwvdGV4dD48L3N2Zz4=';
+                          }
                         }}
                       />
                       <div className="flex-1">

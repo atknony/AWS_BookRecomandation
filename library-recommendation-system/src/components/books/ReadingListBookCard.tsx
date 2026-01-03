@@ -5,28 +5,31 @@ import { formatRating } from '@/utils/formatters';
 import { Button } from '@/components/common/Button';
 
 /**
- * BookCard component props
+ * ReadingListBookCard component props
  */
-interface BookCardProps {
+interface ReadingListBookCardProps {
   book: Book;
+  onRemove: (bookId: string) => void;
 }
 
 // Base64 encoded SVG placeholder (works offline, no external dependencies)
 const PLACEHOLDER_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBDb3ZlciBJbWFnZTwvdGV4dD48L3N2Zz4=';
 
 /**
- * Modern BookCard with beautiful hover effects and gradients
- *
- * @example
- * <BookCard book={book} />
+ * BookCard component for reading list detail page with remove functionality
  */
-export function BookCard({ book }: BookCardProps) {
+export function ReadingListBookCard({ book, onRemove }: ReadingListBookCardProps) {
   const navigate = useNavigate();
   const [imageSrc, setImageSrc] = useState(book.coverImage);
   const [hasError, setHasError] = useState(false);
 
   const handleClick = () => {
     navigate(`/books/${book.id}`);
+  };
+
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onRemove(book.id);
   };
 
   const handleImageError = () => {
@@ -37,11 +40,8 @@ export function BookCard({ book }: BookCardProps) {
   };
 
   return (
-    <div
-      className="glass-effect rounded-2xl overflow-hidden card-hover cursor-pointer group border border-white/20 hover-glow"
-      onClick={handleClick}
-    >
-      <div className="relative overflow-hidden">
+    <div className="glass-effect rounded-2xl overflow-hidden card-hover group border border-white/20 hover-glow relative">
+      <div className="relative overflow-hidden cursor-pointer" onClick={handleClick}>
         <img
           src={imageSrc}
           alt={book.title}
@@ -63,8 +63,29 @@ export function BookCard({ book }: BookCardProps) {
           </Button>
         </div>
 
+        {/* Remove Button */}
+        <button
+          onClick={handleRemove}
+          className="absolute top-4 right-4 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
+          aria-label="Remove from list"
+        >
+          <svg
+            className="w-5 h-5 text-red-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+
         {/* Floating Badge */}
-        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg">
             <div className="flex items-center">
               <svg className="w-4 h-4 text-amber-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -95,7 +116,32 @@ export function BookCard({ book }: BookCardProps) {
             <span className="text-xs font-medium">{book.publishedYear}</span>
           </div>
         </div>
+        <div className="mt-4 pt-4 border-t border-slate-200">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={handleRemove}
+          >
+            <svg
+              className="w-4 h-4 mr-2 inline"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+            Remove from List
+          </Button>
+        </div>
       </div>
     </div>
   );
 }
+
+

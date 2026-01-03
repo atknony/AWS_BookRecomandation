@@ -1,0 +1,154 @@
+{
+  "Books": [
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "1" },
+          "title": { "S": "The Midnight Library" },
+          "author": { "S": "Matt Haig" },
+          "genre": { "S": "Fiction" },
+          "description": { "S": "Between life and death there is a library, and within that library, the shelves go on forever. Every book provides a chance to try another life you could have lived." },
+          "coverImage": { "S": "/book-covers/midnight-library.jpg" },
+          "rating": { "N": "4.5" },
+          "publishedYear": { "N": "2020" },
+          "isbn": { "S": "978-0525559474" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "2" },
+          "title": { "S": "Project Hail Mary" },
+          "author": { "S": "Andy Weir" },
+          "genre": { "S": "Science Fiction" },
+          "description": { "S": "A lone astronaut must save the earth from disaster in this incredible new science-based thriller from the author of The Martian." },
+          "coverImage": { "S": "/book-covers/project-hail-mary.jpg" },
+          "rating": { "N": "4.8" },
+          "publishedYear": { "N": "2021" },
+          "isbn": { "S": "978-0593135204" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "3" },
+          "title": { "S": "The Silent Patient" },
+          "author": { "S": "Alex Michaelides" },
+          "genre": { "S": "Mystery" },
+          "description": { "S": "Alicia Berenson's life is seemingly perfect. A famous painter married to an in-demand fashion photographer, she lives in a grand house. One evening her husband returns home late, and Alicia shoots him five times in the face, and then never speaks another word." },
+          "coverImage": { "S": "/book-covers/silent-patient.jpg" },
+          "rating": { "N": "4.3" },
+          "publishedYear": { "N": "2019" },
+          "isbn": { "S": "978-1250301697" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "4" },
+          "title": { "S": "People We Meet on Vacation" },
+          "author": { "S": "Emily Henry" },
+          "genre": { "S": "Romance" },
+          "description": { "S": "Two best friends. Ten summer trips. One last chance to fall in love." },
+          "coverImage": { "S": "/book-covers/people-we-meet.jpg" },
+          "rating": { "N": "4.2" },
+          "publishedYear": { "N": "2021" },
+          "isbn": { "S": "978-1984806758" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "5" },
+          "title": { "S": "Atomic Habits" },
+          "author": { "S": "James Clear" },
+          "genre": { "S": "Non-Fiction" },
+          "description": { "S": "An Easy & Proven Way to Build Good Habits & Break Bad Ones. Tiny changes, remarkable results." },
+          "coverImage": { "S": "/book-covers/atomic-habits.jpg" },
+          "rating": { "N": "4.7" },
+          "publishedYear": { "N": "2018" },
+          "isbn": { "S": "978-0735211292" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "6" },
+          "title": { "S": "The Seven Husbands of Evelyn Hugo" },
+          "author": { "S": "Taylor Jenkins Reid" },
+          "genre": { "S": "Fiction" },
+          "description": { "S": "Aging and reclusive Hollywood movie icon Evelyn Hugo is finally ready to tell the truth about her glamorous and scandalous life." },
+          "coverImage": { "S": "/book-covers/evelyn-hugo.jpg" },
+          "rating": { "N": "4.6" },
+          "publishedYear": { "N": "2017" },
+          "isbn": { "S": "978-1501161933" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "7" },
+          "title": { "S": "Dune" },
+          "author": { "S": "Frank Herbert" },
+          "genre": { "S": "Science Fiction" },
+          "description": { "S": "Set on the desert planet Arrakis, Dune is the story of the boy Paul Atreides, heir to a noble family tasked with ruling an inhospitable world." },
+          "coverImage": { "S": "/book-covers/dune.jpg" },
+          "rating": { "N": "4.4" },
+          "publishedYear": { "N": "1965" },
+          "isbn": { "S": "978-0441172719" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "8" },
+          "title": { "S": "The Thursday Murder Club" },
+          "author": { "S": "Richard Osman" },
+          "genre": { "S": "Mystery" },
+          "description": { "S": "Four unlikely friends meet weekly to investigate unsolved killings. But when a local developer is found dead, these unorthodox detectives find themselves in the middle of their first live case." },
+          "coverImage": { "S": "/book-covers/thursday-murder-club.jpg" },
+          "rating": { "N": "4.1" },
+          "publishedYear": { "N": "2020" },
+          "isbn": { "S": "978-1984880987" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "9" },
+          "title": { "S": "Educated" },
+          "author": { "S": "Tara Westover" },
+          "genre": { "S": "Non-Fiction" },
+          "description": { "S": "A memoir about a young girl who, kept out of school, leaves her survivalist family and goes on to earn a PhD from Cambridge University." },
+          "coverImage": { "S": "/book-covers/educated.jpg" },
+          "rating": { "N": "4.5" },
+          "publishedYear": { "N": "2018" },
+          "isbn": { "S": "978-0399590504" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "10" },
+          "title": { "S": "The Song of Achilles" },
+          "author": { "S": "Madeline Miller" },
+          "genre": { "S": "Fiction" },
+          "description": { "S": "A tale of gods, kings, immortal fame and the human heart, The Song of Achilles is a dazzling literary feat that brilliantly reimagines Homer's enduring masterwork, The Iliad." },
+          "coverImage": { "S": "/book-covers/song-of-achilles.jpg" },
+          "rating": { "N": "4.6" },
+          "publishedYear": { "N": "2011" },
+          "isbn": { "S": "978-0062060624" }
+        }
+      }
+    }
+  ]
+}

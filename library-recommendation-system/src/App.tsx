@@ -8,6 +8,7 @@ import { Books } from './pages/Books';
 import { BookDetail } from './pages/BookDetail';
 import { Recommendations } from './pages/Recommendations';
 import { ReadingLists } from './pages/ReadingLists';
+import { ReadingListDetail } from './pages/ReadingListDetail';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Admin } from './pages/Admin';
@@ -33,6 +34,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ReadingLists />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reading-lists/:id"
+                element={
+                  <ProtectedRoute>
+                    <ReadingListDetail />
                   </ProtectedRoute>
                 }
               />

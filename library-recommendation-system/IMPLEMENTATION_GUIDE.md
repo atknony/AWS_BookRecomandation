@@ -423,7 +423,6 @@ Follow the same pattern to create:
 **Hint**: Use `QueryCommand` for reading lists (query by userId)
 
 ✅ **Week 2 Checkpoint**: All Books and Reading Lists endpoints working!
-
 ---
 
 ## Week 3: Authentication with Cognito
@@ -475,9 +474,14 @@ VITE_COGNITO_USER_POOL_ID=us-east-1_abc123
 VITE_COGNITO_CLIENT_ID=1a2b3c4d5e6f7g8h9i0j
 ```
 
+
 ### Day 3-4: Integrate Cognito with Frontend
 
 #### Install AWS Amplify
+
+VITE_AWS_REGION=us-east-1
+VITE_COGNITO_USER_POOL_ID=us-east-1_0HBFR9JIq
+VITE_COGNITO_CLIENT_ID=71v7s05eh8733qhdj80e3tp6i6
 
 ```bash
 cd library-recommendation-system
@@ -950,19 +954,19 @@ git push
 
 #### End-to-End Testing Checklist
 
-- [ ] User can register and verify email
-- [ ] User can login and logout
-- [ ] Books page displays all books from DynamoDB
-- [ ] Book detail page works
-- [ ] User can create reading lists
-- [ ] User can add books to reading lists
-- [ ] User can delete reading lists
-- [ ] AI recommendations work
-- [ ] Admin can add new books (if implemented)
-- [ ] All API calls include authentication
-- [ ] Error messages display properly
-- [ ] Loading states work
-- [ ] Mobile responsive design works
+- [✅] User can register and verify email
+- [✅] User can login and logout
+- [✅] Books page displays all books from DynamoDB
+- [✅] Book detail page works
+- [✅] User can create reading lists
+- [✅] User can add books to reading lists
+- [✅] User can delete reading lists
+- [✅] AI recommendations work
+- [✅] Admin can add new books (if implemented)
+- [✅] All API calls include authentication
+- [✅] Error messages display properly
+- [✅] Loading states work
+- [✅] Mobile responsive design works
 
 #### Performance Optimization
 

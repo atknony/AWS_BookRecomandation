@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { Modal } from '@/components/common/Modal';
 import { Input } from '@/components/common/Input';
@@ -12,6 +13,7 @@ import { handleApiError, showSuccess } from '@/utils/errorHandling';
  * ReadingLists page component
  */
 export function ReadingLists() {
+  const navigate = useNavigate();
   const [lists, setLists] = useState<ReadingList[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -108,6 +110,7 @@ export function ReadingLists() {
             {lists.map((list) => (
               <div
                 key={list.id}
+                onClick={() => navigate(`/reading-lists/${list.id}`)}
                 className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer"
               >
                 <h3 className="text-xl font-bold text-slate-900 mb-2">{list.name}</h3>

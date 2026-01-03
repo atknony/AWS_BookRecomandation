@@ -1,5 +1,6 @@
 import { Book, ReadingList, Review, Recommendation } from '@/types';
-import { mockBooks, mockReadingLists } from './mockData';
+import { mockBooks } from './mockData';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 /**
  * ============================================================================
@@ -40,36 +41,22 @@ import { mockBooks, mockReadingLists } from './mockData';
  * ============================================================================
  */
 
-// TODO: Uncomment this after deploying API Gateway (Week 2, Day 4)
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-/**
- * TODO: Implement this function in Week 3, Day 4
- *
- * This function gets the JWT token from Cognito and adds it to API requests.
- *
- * Implementation:
- * 1. Import: import { fetchAuthSession } from 'aws-amplify/auth';
- * 2. Get session: const session = await fetchAuthSession();
- * 3. Extract token: const token = session.tokens?.idToken?.toString();
- * 4. Return headers with Authorization: Bearer {token}
- *
- * See IMPLEMENTATION_GUIDE.md - Week 3, Day 5-7 for complete code.
- */
-// async function getAuthHeaders() {
-//   try {
-//     const session = await fetchAuthSession();
-//     const token = session.tokens?.idToken?.toString();
-//     return {
-//       'Authorization': `Bearer ${token}`,
-//       'Content-Type': 'application/json'
-//     };
-//   } catch {
-//     return {
-//       'Content-Type': 'application/json'
-//     };
-//   }
-// }
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  try {
+    const session = await fetchAuthSession();
+    const token = session.tokens?.idToken?.toString();
+    return {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+  } catch {
+    return {
+      'Content-Type': 'application/json',
+    };
+  }
+}
 
 /**
  * Get all books from the catalog
@@ -89,10 +76,30 @@ import { mockBooks, mockReadingLists } from './mockData';
  * Expected response: Array of Book objects from DynamoDB
  */
 export async function getBooks(): Promise<Book[]> {
-  // TODO: Remove this mock implementation after deploying Lambda
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(mockBooks), 500);
-  });
+  const response = await fetch(`${API_BASE_URL}/books`);
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch books: ${response.status} ${response.statusText}`);
+  }
+  
+  const data = await response.json();
+  
+  // Handle Lambda Proxy Integration response format
+  // API Gateway returns: { statusCode, headers, body: "string" }
+  if (data.body && typeof data.body === 'string') {
+    const parsedBody = JSON.parse(data.body);
+    if (Array.isArray(parsedBody)) {
+      return parsedBody;
+    }
+    throw new Error('API response body is not an array');
+  }
+  
+  // If data is directly an array (non-proxy integration)
+  if (Array.isArray(data)) {
+    return data;
+  }
+  
+  throw new Error('Unexpected API response format');
 }
 
 /**
@@ -189,55 +196,48 @@ export async function deleteBook(): Promise<void> {
 
 /**
  * Get AI-powered book recommendations using Amazon Bedrock
- *
- * TODO: Replace with real API call in Week 4, Day 1-2
- *
- * Implementation steps:
- * 1. Enable Bedrock model access in AWS Console (Claude 3 Haiku recommended)
- * 2. Deploy Lambda function: library-get-recommendations (see IMPLEMENTATION_GUIDE.md)
- * 3. Create API Gateway endpoint: POST /recommendations
- * 4. Add Cognito authorizer
- * 5. Update function signature to accept query parameter:
- *    export async function getRecommendations(query: string): Promise<Recommendation[]>
- * 6. Replace mock code below with:
- *
- * const headers = await getAuthHeaders();
- * const response = await fetch(`${API_BASE_URL}/recommendations`, {
- *   method: 'POST',
- *   headers,
- *   body: JSON.stringify({ query })
- * });
- * if (!response.ok) throw new Error('Failed to get recommendations');
- * const data = await response.json();
- * return data.recommendations;
- *
- * Expected response: Array of recommendations with title, author, reason, confidence
- *
- * Documentation: https://docs.aws.amazon.com/bedrock/latest/userguide/
  */
-export async function getRecommendations(): Promise<Recommendation[]> {
-  // TODO: Remove this mock implementation after deploying Bedrock Lambda
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const mockRecommendations: Recommendation[] = [
-        {
-          id: '1',
-          bookId: '1',
-          reason:
-            'Based on your interest in philosophical fiction, this book explores themes of choice and regret.',
-          confidence: 0.92,
-        },
-        {
-          id: '2',
-          bookId: '2',
-          reason:
-            'If you enjoy science-based thrillers, this space adventure combines humor with hard science.',
-          confidence: 0.88,
-        },
-      ];
-      resolve(mockRecommendations);
-    }, 1000);
+export async function getRecommendations(query: string): Promise<Recommendation[]> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/recommendations`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ query }),
   });
+  
+  if (!response.ok) {
+    // Handle specific error codes
+    if (response.status === 429) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'AI service rate limit exceeded. Please try again in 24 hours.');
+    }
+    throw new Error('Failed to get recommendations');
+  }
+  
+  const data = await response.json();
+  
+  // Handle Lambda Proxy Integration response format
+  if (data.body && typeof data.body === 'string') {
+    const parsedBody = JSON.parse(data.body);
+    if (parsedBody.recommendations && Array.isArray(parsedBody.recommendations)) {
+      return parsedBody.recommendations;
+    }
+    if (Array.isArray(parsedBody)) {
+      return parsedBody;
+    }
+  }
+  
+  // If data is directly the recommendations array
+  if (data.recommendations && Array.isArray(data.recommendations)) {
+    return data.recommendations;
+  }
+  
+  // If data is directly an array
+  if (Array.isArray(data)) {
+    return data;
+  }
+  
+  throw new Error('Unexpected API response format');
 }
 
 /**
@@ -262,10 +262,48 @@ export async function getRecommendations(): Promise<Recommendation[]> {
  * Expected response: Array of ReadingList objects for the authenticated user
  */
 export async function getReadingLists(): Promise<ReadingList[]> {
-  // TODO: Remove this mock implementation after deploying Lambda
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(mockReadingLists), 500);
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/reading-lists`, {
+    headers,
   });
+  
+  if (!response.ok) {
+    // Try to get error details from response
+    let errorMessage = `Failed to fetch reading lists: ${response.status} ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.message) {
+        errorMessage += ` - ${errorData.message}`;
+      } else if (errorData.body) {
+        const parsedBody = typeof errorData.body === 'string' ? JSON.parse(errorData.body) : errorData.body;
+        if (parsedBody.message) {
+          errorMessage += ` - ${parsedBody.message}`;
+        }
+      }
+      console.error('API Error Response:', errorData);
+    } catch (e) {
+      // If we can't parse error response, use default message
+    }
+    throw new Error(errorMessage);
+  }
+  
+  const data = await response.json();
+  
+  // Handle Lambda Proxy Integration response format
+  if (data.body && typeof data.body === 'string') {
+    const parsedBody = JSON.parse(data.body);
+    if (Array.isArray(parsedBody)) {
+      return parsedBody;
+    }
+    throw new Error('API response body is not an array');
+  }
+  
+  // If data is directly an array (non-proxy integration)
+  if (Array.isArray(data)) {
+    return data;
+  }
+  
+  throw new Error('Unexpected API response format');
 }
 
 /**
@@ -295,91 +333,208 @@ export async function getReadingLists(): Promise<ReadingList[]> {
 export async function createReadingList(
   list: Omit<ReadingList, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<ReadingList> {
-  // TODO: Remove this mock implementation after deploying Lambda
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newList: ReadingList = {
-        ...list,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      resolve(newList);
-    }, 500);
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/reading-lists`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(list),
   });
+  
+  if (!response.ok) {
+    throw new Error(`Failed to create reading list: ${response.status} ${response.statusText}`);
+  }
+  
+  const data = await response.json();
+  
+  // Handle Lambda Proxy Integration response format
+  if (data.body && typeof data.body === 'string') {
+    const parsedBody = JSON.parse(data.body);
+    // Convert books to bookIds if needed
+    if (parsedBody.books && !parsedBody.bookIds) {
+      parsedBody.bookIds = parsedBody.books;
+      delete parsedBody.books;
+    }
+    return parsedBody;
+  }
+  
+  // If data is directly the object
+  if (data.bookIds || data.books) {
+    // Convert books to bookIds if needed
+    if (data.books && !data.bookIds) {
+      data.bookIds = data.books;
+      delete data.books;
+    }
+    return data;
+  }
+  
+  throw new Error('Unexpected API response format');
 }
 
 /**
  * Update a reading list
- * TODO: Replace with PUT /reading-lists/:id API call
  */
 export async function updateReadingList(
   id: string,
   list: Partial<ReadingList>
 ): Promise<ReadingList> {
-  // Mock implementation
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const existingList = mockReadingLists.find((l) => l.id === id);
-      const updatedList: ReadingList = {
-        ...existingList!,
-        ...list,
-        id,
-        updatedAt: new Date().toISOString(),
-      };
-      resolve(updatedList);
-    }, 500);
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/reading-lists/${id}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(list),
   });
+
+  if (!response.ok) {
+    let errorMessage = `Failed to update reading list: ${response.status} ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.message) {
+        errorMessage += ` - ${errorData.message}`;
+      } else if (errorData.body) {
+        const parsedBody = typeof errorData.body === 'string' ? JSON.parse(errorData.body) : errorData.body;
+        if (parsedBody.message || parsedBody.error) {
+          errorMessage += ` - ${parsedBody.message || parsedBody.error}`;
+        }
+      }
+      console.error('Update Reading List API Error Response:', errorData);
+    } catch (e) {
+      // If we can't parse error response, use default message
+    }
+    throw new Error(errorMessage);
+  }
+
+  const data = await response.json();
+
+  // Handle Lambda Proxy Integration response format
+  if (data.body && typeof data.body === 'string') {
+    const parsedBody = JSON.parse(data.body);
+    // Convert books to bookIds if needed
+    if (parsedBody.books && !parsedBody.bookIds) {
+      parsedBody.bookIds = parsedBody.books;
+      delete parsedBody.books;
+    }
+    return parsedBody;
+  }
+
+  // If data is directly the object
+  if (data.bookIds || data.books) {
+    // Convert books to bookIds if needed
+    if (data.books && !data.bookIds) {
+      data.bookIds = data.books;
+      delete data.books;
+    }
+    return data;
+  }
+
+  throw new Error('Unexpected API response format');
 }
 
 /**
  * Delete a reading list
- * TODO: Replace with DELETE /reading-lists/:id API call
  */
-export async function deleteReadingList(): Promise<void> {
-  // Mock implementation
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(), 300);
+export async function deleteReadingList(id: string): Promise<void> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/reading-lists/${id}`, {
+    method: 'DELETE',
+    headers,
   });
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete reading list: ${response.status} ${response.statusText}`);
+  }
 }
 
 /**
  * Get reviews for a book
- * TODO: Replace with GET /books/:id/reviews API call
+ * TODO: Replace with GET /books/:id/reviews API call when backend is ready
  */
 export async function getReviews(bookId: string): Promise<Review[]> {
-  // Mock implementation
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const mockReviews: Review[] = [
-        {
-          id: '1',
-          bookId,
-          userId: '1',
-          rating: 5,
-          comment: 'Absolutely loved this book! A must-read.',
-          createdAt: '2024-11-01T10:00:00Z',
-        },
-      ];
-      resolve(mockReviews);
-    }, 500);
-  });
+  try {
+    // Try real API first
+    const response = await fetch(`${API_BASE_URL}/books/${bookId}/reviews`);
+    
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Handle Lambda Proxy Integration response format
+      if (data.body && typeof data.body === 'string') {
+        const parsedBody = JSON.parse(data.body);
+        if (Array.isArray(parsedBody)) {
+          return parsedBody;
+        }
+      }
+      
+      if (Array.isArray(data)) {
+        return data;
+      }
+    }
+  } catch (error) {
+    // API not available, use localStorage
+    console.log('Review API not available, using localStorage');
+  }
+
+  // Fallback to localStorage
+  const storageKey = `reviews_${bookId}`;
+  const storedReviews = localStorage.getItem(storageKey);
+  
+  if (storedReviews) {
+    return JSON.parse(storedReviews);
+  }
+  
+  return [];
 }
 
 /**
  * Create a new review
- * TODO: Replace with POST /books/:bookId/reviews API call
+ * TODO: Replace with POST /books/:bookId/reviews API call when backend is ready
  */
 export async function createReview(review: Omit<Review, 'id' | 'createdAt'>): Promise<Review> {
-  // Mock implementation
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newReview: Review = {
-        ...review,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-      };
-      resolve(newReview);
-    }, 500);
-  });
+  const newReview: Review = {
+    ...review,
+    id: Date.now().toString(),
+    createdAt: new Date().toISOString(),
+  };
+
+  try {
+    // Try real API first
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE_URL}/books/${review.bookId}/reviews`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(review),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Handle Lambda Proxy Integration response format
+      if (data.body && typeof data.body === 'string') {
+        const parsedBody = JSON.parse(data.body);
+        // Save to localStorage as backup
+        const storageKey = `reviews_${review.bookId}`;
+        const existingReviews = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        const updatedReviews = [parsedBody, ...existingReviews];
+        localStorage.setItem(storageKey, JSON.stringify(updatedReviews));
+        return parsedBody;
+      }
+      
+      // Save to localStorage as backup
+      const storageKey = `reviews_${review.bookId}`;
+      const existingReviews = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      const updatedReviews = [data, ...existingReviews];
+      localStorage.setItem(storageKey, JSON.stringify(updatedReviews));
+      return data;
+    }
+  } catch (error) {
+    // API not available, use localStorage
+    console.log('Review API not available, using localStorage');
+  }
+
+  // Fallback to localStorage
+  const storageKey = `reviews_${review.bookId}`;
+  const existingReviews = JSON.parse(localStorage.getItem(storageKey) || '[]');
+  const updatedReviews = [newReview, ...existingReviews];
+  localStorage.setItem(storageKey, JSON.stringify(updatedReviews));
+  
+  return newReview;
 }
