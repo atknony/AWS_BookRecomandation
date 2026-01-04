@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Book } from '@/types';
 import { formatRating } from '@/utils/formatters';
@@ -11,9 +10,6 @@ interface BookCardProps {
   book: Book;
 }
 
-// Base64 encoded SVG placeholder (works offline, no external dependencies)
-const PLACEHOLDER_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBDb3ZlciBJbWFnZTwvdGV4dD48L3N2Zz4=';
-
 /**
  * Modern BookCard with beautiful hover effects and gradients
  *
@@ -22,18 +18,9 @@ const PLACEHOLDER_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWl
  */
 export function BookCard({ book }: BookCardProps) {
   const navigate = useNavigate();
-  const [imageSrc, setImageSrc] = useState(book.coverImage);
-  const [hasError, setHasError] = useState(false);
 
   const handleClick = () => {
     navigate(`/books/${book.id}`);
-  };
-
-  const handleImageError = () => {
-    if (!hasError && !imageSrc.includes('data:image/svg+xml')) {
-      setHasError(true);
-      setImageSrc(PLACEHOLDER_IMAGE);
-    }
   };
 
   return (
@@ -43,10 +30,12 @@ export function BookCard({ book }: BookCardProps) {
     >
       <div className="relative overflow-hidden">
         <img
-          src={imageSrc}
+          src={book.coverImage}
           alt={book.title}
           className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700"
-          onError={handleImageError}
+          onError={(e) => {
+            e.currentTarget.src = 'https://via.placeholder.com/300x400?text=No+Cover';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">

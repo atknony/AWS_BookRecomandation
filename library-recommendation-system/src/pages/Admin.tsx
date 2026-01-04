@@ -3,7 +3,7 @@ import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Modal } from '@/components/common/Modal';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-import { getBooks, createBook, deleteBook } from '@/services/api';
+import { getBooks, createBook, deleteBook, updateBook } from '@/services/api';
 import { Book } from '@/types';
 import { handleApiError, showSuccess } from '@/utils/errorHandling';
 
@@ -14,6 +14,8 @@ export function Admin() {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [newBook, setNewBook] = useState({
     title: '',
     author: '',
@@ -59,14 +61,46 @@ export function Admin() {
     }
   };
 
+  const handleEditBook = (book: Book) => {
+    setEditingBook(book);
+    setNewBook({
+      title: book.title,
+      author: book.author,
+      genre: book.genre,
+      description: book.description || '',
+      coverImage: book.coverImage || '',
+      rating: book.rating,
+      publishedYear: book.publishedYear,
+      isbn: book.isbn || '',
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateBook = async () => {
+    if (!editingBook || !newBook.title || !newBook.author) {
+      alert('Please fill in required fields');
+      return;
+    }
+
+    try {
+      const updated = await updateBook(editingBook.id, newBook);
+      setBooks(books.map((book) => (book.id === editingBook.id ? updated : book)));
+      setIsEditModalOpen(false);
+      resetForm();
+      setEditingBook(null);
+      showSuccess('Book updated successfully!');
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
+
   const handleDeleteBook = async (id: string) => {
     if (!confirm('Are you sure you want to delete this book?')) {
       return;
     }
 
     try {
-      // TODO: Replace with Lambda API call
-      await deleteBook();
+      await deleteBook(id);
       setBooks(books.filter((book) => book.id !== id));
       showSuccess('Book deleted successfully!');
     } catch (error) {
@@ -85,6 +119,7 @@ export function Admin() {
       publishedYear: new Date().getFullYear(),
       isbn: '',
     });
+    setEditingBook(null);
   };
 
   if (isLoading) {
@@ -150,7 +185,11 @@ export function Admin() {
                     <td className="py-3 px-4">{book.rating}</td>
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
-                        <Button variant="secondary" size="sm">
+                        <Button 
+                          variant="secondary" 
+                          size="sm"
+                          onClick={() => handleEditBook(book)}
+                        >
                           Edit
                         </Button>
                         <Button
@@ -170,7 +209,7 @@ export function Admin() {
         </div>
 
         {/* Add Book Modal */}
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Book">
+        <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); resetForm(); }} title="Add New Book">
           <div className="max-h-[60vh] overflow-y-auto">
             <Input
               label="Title"
@@ -240,7 +279,85 @@ export function Admin() {
               <Button variant="primary" onClick={handleCreateBook} className="flex-1">
                 Add Book
               </Button>
-              <Button variant="secondary" onClick={() => setIsModalOpen(false)} className="flex-1">
+              <Button variant="secondary" onClick={() => { setIsModalOpen(false); resetForm(); }} className="flex-1">
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Edit Book Modal */}
+        <Modal isOpen={isEditModalOpen} onClose={() => { setIsEditModalOpen(false); resetForm(); }} title="Edit Book">
+          <div className="max-h-[60vh] overflow-y-auto">
+            <Input
+              label="Title"
+              type="text"
+              value={newBook.title}
+              onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
+              required
+            />
+
+            <Input
+              label="Author"
+              type="text"
+              value={newBook.author}
+              onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
+              required
+            />
+
+            <Input
+              label="Genre"
+              type="text"
+              value={newBook.genre}
+              onChange={(e) => setNewBook({ ...newBook, genre: e.target.value })}
+              required
+            />
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+              <textarea
+                value={newBook.description}
+                onChange={(e) => setNewBook({ ...newBook, description: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[100px] resize-none"
+              />
+            </div>
+
+            <Input
+              label="Cover Image URL"
+              type="text"
+              value={newBook.coverImage}
+              onChange={(e) => setNewBook({ ...newBook, coverImage: e.target.value })}
+            />
+
+            <Input
+              label="Rating"
+              type="number"
+              min="0"
+              max="5"
+              step="0.1"
+              value={newBook.rating}
+              onChange={(e) => setNewBook({ ...newBook, rating: parseFloat(e.target.value) })}
+            />
+
+            <Input
+              label="Published Year"
+              type="number"
+              value={newBook.publishedYear}
+              onChange={(e) => setNewBook({ ...newBook, publishedYear: parseInt(e.target.value) })}
+            />
+
+            <Input
+              label="ISBN"
+              type="text"
+              value={newBook.isbn}
+              onChange={(e) => setNewBook({ ...newBook, isbn: e.target.value })}
+            />
+
+            <div className="flex gap-3 mt-6">
+              <Button variant="primary" onClick={handleUpdateBook} className="flex-1">
+                Update Book
+              </Button>
+              <Button variant="secondary" onClick={() => { setIsEditModalOpen(false); resetForm(); }} className="flex-1">
                 Cancel
               </Button>
             </div>

@@ -88,20 +88,29 @@ interface AuthProviderProps {
  *
  * ============================================================================
  */
+// Admin email listesi - Bu email'ler admin rolüne sahip olur
+const ADMIN_EMAILS = ['furkantahasaranda@gmail.com']; // ← Kendi email'ini ekle
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Helper function to determine user role
+  const getUserRole = (email: string): 'user' | 'admin' => {
+    return ADMIN_EMAILS.includes(email.toLowerCase()) ? 'admin' : 'user';
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const user = await getCurrentUser();
         const attributes = await fetchUserAttributes();
+        const userEmail = attributes.email || user.signInDetails?.loginId || '';
         setUser({
           id: user.userId,
-          email: attributes.email || user.signInDetails?.loginId || '',
+          email: userEmail,
           name: attributes.name || user.username,
-          role: 'user',
+          role: getUserRole(userEmail),
           createdAt: new Date().toISOString(),
         });
       } catch {
@@ -120,11 +129,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (isSignedIn) {
         const user = await getCurrentUser();
         const attributes = await fetchUserAttributes();
+        const userEmail = attributes.email || email;
         setUser({
           id: user.userId,
-          email: attributes.email || email,
+          email: userEmail,
           name: attributes.name || user.username,
-          role: 'user',
+          role: getUserRole(userEmail),
           createdAt: new Date().toISOString(),
         });
       }

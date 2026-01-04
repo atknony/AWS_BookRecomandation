@@ -85,21 +85,18 @@ export async function getBooks(): Promise<Book[]> {
   const data = await response.json();
   
   // Handle Lambda Proxy Integration response format
-  // API Gateway returns: { statusCode, headers, body: "string" }
   if (data.body && typeof data.body === 'string') {
     const parsedBody = JSON.parse(data.body);
     if (Array.isArray(parsedBody)) {
       return parsedBody;
     }
-    throw new Error('API response body is not an array');
   }
   
-  // If data is directly an array (non-proxy integration)
   if (Array.isArray(data)) {
     return data;
   }
   
-  throw new Error('Unexpected API response format');
+  return [];
 }
 
 /**
@@ -131,67 +128,71 @@ export async function getBook(id: string): Promise<Book | null> {
 
 /**
  * Create a new book (admin only)
- *
- * TODO: Replace with real API call in Week 2, Day 5-7
- *
- * Implementation steps:
- * 1. Deploy Lambda function: library-create-book
- * 2. Create API Gateway endpoint: POST /books
- * 3. Add Cognito authorizer (Week 3)
- * 4. Replace mock code below with:
- *
- * const headers = await getAuthHeaders();
- * const response = await fetch(`${API_BASE_URL}/books`, {
- *   method: 'POST',
- *   headers,
- *   body: JSON.stringify(book)
- * });
- * if (!response.ok) throw new Error('Failed to create book');
- * return response.json();
- *
- * Note: This endpoint requires admin role in Cognito
  */
 export async function createBook(book: Omit<Book, 'id'>): Promise<Book> {
-  // TODO: Remove this mock implementation after deploying Lambda
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newBook: Book = {
-        ...book,
-        id: Date.now().toString(),
-      };
-      resolve(newBook);
-    }, 500);
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/books`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(book),
   });
+
+  if (!response.ok) {
+    throw new Error(`Failed to create book: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  // Handle Lambda Proxy Integration response format
+  if (data.body && typeof data.body === 'string') {
+    return JSON.parse(data.body);
+  }
+
+  return data;
 }
 
 /**
  * Update an existing book (admin only)
- * TODO: Replace with PUT /books/:id API call
  */
 export async function updateBook(id: string, book: Partial<Book>): Promise<Book> {
-  // Mock implementation
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const existingBook = mockBooks.find((b) => b.id === id);
-      const updatedBook: Book = {
-        ...existingBook!,
-        ...book,
-        id,
-      };
-      resolve(updatedBook);
-    }, 500);
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/books/${id}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(book),
   });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update book: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  // Handle Lambda Proxy Integration response format
+  if (data.body && typeof data.body === 'string') {
+    return JSON.parse(data.body);
+  }
+
+  return data;
 }
 
 /**
  * Delete a book (admin only)
- * TODO: Replace with DELETE /books/:id API call
  */
-export async function deleteBook(): Promise<void> {
-  // Mock implementation
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(), 300);
+export async function deleteBook(id?: string): Promise<void> {
+  if (!id) {
+    throw new Error('Book ID is required for deletion');
+  }
+
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/books/${id}`, {
+    method: 'DELETE',
+    headers,
   });
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete book: ${response.status} ${response.statusText}`);
+  }
 }
 
 /**
@@ -446,95 +447,52 @@ export async function deleteReadingList(id: string): Promise<void> {
 
 /**
  * Get reviews for a book
- * TODO: Replace with GET /books/:id/reviews API call when backend is ready
  */
 export async function getReviews(bookId: string): Promise<Review[]> {
-  try {
-    // Try real API first
-    const response = await fetch(`${API_BASE_URL}/books/${bookId}/reviews`);
-    
-    if (response.ok) {
-      const data = await response.json();
-      
-      // Handle Lambda Proxy Integration response format
-      if (data.body && typeof data.body === 'string') {
-        const parsedBody = JSON.parse(data.body);
-        if (Array.isArray(parsedBody)) {
-          return parsedBody;
-        }
-      }
-      
-      if (Array.isArray(data)) {
-        return data;
-      }
-    }
-  } catch (error) {
-    // API not available, use localStorage
-    console.log('Review API not available, using localStorage');
+  const response = await fetch(`${API_BASE_URL}/books/${bookId}/reviews`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch reviews: ${response.status} ${response.statusText}`);
   }
 
-  // Fallback to localStorage
-  const storageKey = `reviews_${bookId}`;
-  const storedReviews = localStorage.getItem(storageKey);
-  
-  if (storedReviews) {
-    return JSON.parse(storedReviews);
+  const data = await response.json();
+
+  // Handle Lambda Proxy Integration response format
+  if (data.body && typeof data.body === 'string') {
+    const parsedBody = JSON.parse(data.body);
+    if (Array.isArray(parsedBody)) {
+      return parsedBody;
+    }
   }
-  
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
   return [];
 }
 
 /**
  * Create a new review
- * TODO: Replace with POST /books/:bookId/reviews API call when backend is ready
  */
 export async function createReview(review: Omit<Review, 'id' | 'createdAt'>): Promise<Review> {
-  const newReview: Review = {
-    ...review,
-    id: Date.now().toString(),
-    createdAt: new Date().toISOString(),
-  };
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/books/${review.bookId}/reviews`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(review),
+  });
 
-  try {
-    // Try real API first
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/books/${review.bookId}/reviews`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(review),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      
-      // Handle Lambda Proxy Integration response format
-      if (data.body && typeof data.body === 'string') {
-        const parsedBody = JSON.parse(data.body);
-        // Save to localStorage as backup
-        const storageKey = `reviews_${review.bookId}`;
-        const existingReviews = JSON.parse(localStorage.getItem(storageKey) || '[]');
-        const updatedReviews = [parsedBody, ...existingReviews];
-        localStorage.setItem(storageKey, JSON.stringify(updatedReviews));
-        return parsedBody;
-      }
-      
-      // Save to localStorage as backup
-      const storageKey = `reviews_${review.bookId}`;
-      const existingReviews = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      const updatedReviews = [data, ...existingReviews];
-      localStorage.setItem(storageKey, JSON.stringify(updatedReviews));
-      return data;
-    }
-  } catch (error) {
-    // API not available, use localStorage
-    console.log('Review API not available, using localStorage');
+  if (!response.ok) {
+    throw new Error(`Failed to create review: ${response.status} ${response.statusText}`);
   }
 
-  // Fallback to localStorage
-  const storageKey = `reviews_${review.bookId}`;
-  const existingReviews = JSON.parse(localStorage.getItem(storageKey) || '[]');
-  const updatedReviews = [newReview, ...existingReviews];
-  localStorage.setItem(storageKey, JSON.stringify(updatedReviews));
-  
-  return newReview;
+  const data = await response.json();
+
+  // Handle Lambda Proxy Integration response format
+  if (data.body && typeof data.body === 'string') {
+    return JSON.parse(data.body);
+  }
+
+  return data;
 }
