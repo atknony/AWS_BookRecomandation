@@ -692,3 +692,26 @@ This project is part of an academic course at Istanbul Okan University.
 **Project Type**: 4-week intensive, beginner-friendly, AWS serverless  
 **Status**: Frontend complete ✅ | Backend implementation guides ready ✅  
 **Next Step**: [QUICK_START.md](./QUICK_START.md) 🚀
+
+# 🚀 AWS Book Recommendation System
+
+AI-powered library book recommendation system built with React, AWS Lambda, DynamoDB, and Bedrock.
+
+## 🌐 Live Demo
+[https://d3s3nr7a2lwmpk.cloudfront.net](https://d3s3nr7a2lwmpk.cloudfront.net)
+
+## 🛠️ Technologies
+- **Frontend**: React, TypeScript, Tailwind CSS, Vite
+- **Backend**: AWS Lambda, API Gateway, DynamoDB
+- **AI**: Amazon Bedrock (Claude 3 Haiku)
+- **Auth**: AWS Cognito
+- **CI/CD**: GitHub, CodeBuild, CodePipeline
+- **Hosting**: S3, CloudFront
+
+## ✨ Features
+- 📚 Browse and search books
+- 🤖 AI-powered book recommendations
+- 📖 Create and manage reading lists
+- ⭐ Write and view book reviews
+- 🔐 Secure authentication with AWS Cognito
+- 🚀 Fully serverless architecture
