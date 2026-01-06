@@ -28,68 +28,8 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-/**
- * ============================================================================
- * AUTHENTICATION CONTEXT - AWS COGNITO INTEGRATION
- * ============================================================================
- *
- * ⚠️ IMPORTANT: This file currently uses MOCK authentication with localStorage.
- *
- * TO IMPLEMENT AWS COGNITO:
- * Follow Week 3 in IMPLEMENTATION_GUIDE.md
- *
- * ============================================================================
- * IMPLEMENTATION CHECKLIST:
- * ============================================================================
- *
- * [ ] Week 3, Day 1-2: Create Cognito User Pool in AWS Console
- * [ ] Week 3, Day 1-2: Note User Pool ID and App Client ID
- * [ ] Week 3, Day 1-2: Update .env file with Cognito credentials
- * [ ] Week 3, Day 3-4: Install AWS Amplify: npm install aws-amplify
- * [ ] Week 3, Day 3-4: Configure Amplify in src/main.tsx (see below)
- * [ ] Week 3, Day 3-4: Import Cognito functions at top of this file
- * [ ] Week 3, Day 3-4: Replace login() function with Cognito signIn
- * [ ] Week 3, Day 3-4: Replace logout() function with Cognito signOut
- * [ ] Week 3, Day 3-4: Replace signup() function with Cognito signUp
- * [ ] Week 3, Day 3-4: Update useEffect to check Cognito session
- * [ ] Week 3, Day 3-4: Remove localStorage mock code
- * [ ] Week 3, Day 3-4: Test registration and login flow
- *
- * ============================================================================
- * STEP 1: Configure Amplify in src/main.tsx
- * ============================================================================
- *
- * Add this code BEFORE ReactDOM.createRoot():
- *
- * import { Amplify } from 'aws-amplify';
- *
- * Amplify.configure({
- *   Auth: {
- *     Cognito: {
- *       userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
- *       userPoolClientId: import.meta.env.VITE_COGNITO_CLIENT_ID,
- *     }
- *   }
- * });
- *
- * ============================================================================
- * STEP 2: Import Cognito functions at top of this file
- * ============================================================================
- *
- * import { signIn, signUp, signOut, getCurrentUser } from 'aws-amplify/auth';
- *
- * ============================================================================
- * STEP 3: Replace mock functions below with Cognito implementations
- * ============================================================================
- *
- * See detailed code in IMPLEMENTATION_GUIDE.md - Week 3, Day 3-4
- *
- * Documentation: https://docs.amplify.aws/lib/auth/getting-started/q/platform/js/
- *
- * ============================================================================
- */
-// Admin email listesi - Bu email'ler admin rolüne sahip olur
-const ADMIN_EMAILS = ['furkantahasaranda@gmail.com']; // ← Kendi email'ini ekle
+// Admin information
+const ADMIN_EMAILS = ['furkantahasaranda@gmail.com']; 
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
