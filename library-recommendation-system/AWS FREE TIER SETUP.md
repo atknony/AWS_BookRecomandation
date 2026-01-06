@@ -366,7 +366,7 @@ This will alert you if you incur ANY charges.
 5. Set password or auto-generate
 6. Click **"Next"**
 7. Attach policies:
-   - ✅ **AdministratorAccess** (for learning purposes)
+   - **AdministratorAccess** (for learning purposes)
    - For production, use more restrictive policies
 8. Click **"Next"** → **"Create user"**
 9. **Save the sign-in URL, username, and password**
@@ -576,21 +576,21 @@ You should see your account information.
 
 Before starting the project, ensure you've completed:
 
-- [ ] Created AWS account with Free Account Plan
-- [ ] Verified email address
-- [ ] Verified phone number
-- [ ] Added payment method
-- [ ] Received $100 sign-up credits
-- [ ] Enabled billing alerts
-- [ ] Created zero-spend budget
-- [ ] Set up CloudWatch billing alarm
-- [ ] Enabled MFA on root account
-- [ ] Created IAM user for daily use
-- [ ] Installed AWS CLI
-- [ ] Configured AWS CLI with access keys
-- [ ] Tested AWS CLI connection
-- [ ] Bookmarked Free Tier dashboard
-- [ ] Reviewed Free Tier limits
+- [✅] Created AWS account with Free Account Plan
+- [✅] Verified email address
+- [✅] Verified phone number
+- [✅] Added payment method
+- [✅] Received $100 sign-up credits
+- [✅] Enabled billing alerts
+- [✅] Created zero-spend budget
+- [✅] Set up CloudWatch billing alarm
+- [✅] Enabled MFA on root account
+- [✅] Created IAM user for daily use
+- [✅] Installed AWS CLI
+- [✅] Configured AWS CLI with access keys
+- [✅] Tested AWS CLI connection
+- [✅] Bookmarked Free Tier dashboard
+- [✅] Reviewed Free Tier limits
 
 **Once all items are checked, you're ready to start Week 1!** 🚀
 

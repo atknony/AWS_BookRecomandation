@@ -1,10 +1,10 @@
 version: 0.2
 env:
   variables:
-    VITE_API_BASE_URL: "https://o373ns7oo8.execute-api.us-east-1.amazonaws.com/dev"
+    VITE_API_BASE_URL: "VITE_API_BASE_URL"
     VITE_AWS_REGION: "us-east-1"
-    VITE_COGNITO_USER_POOL_ID: "us-east-1_Sr5K8pwW2"
-    VITE_COGNITO_CLIENT_ID: "22kc1cbgocqphm83uvdf0vos0m"
+    VITE_COGNITO_USER_POOL_ID: "VITE_COGNITO_USER_POOL_ID"
+    VITE_COGNITO_CLIENT_ID: "VITE_COGNITO_CLIENT_ID"
 phases:
   install:
     runtime-versions:
