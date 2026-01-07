@@ -1,5 +1,4 @@
 import { Book, ReadingList, Review, Recommendation } from '@/types';
-import { mockBooks } from './mockData';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
 /**
@@ -116,14 +115,28 @@ export async function getBooks(): Promise<Book[]> {
  *
  * Expected response: Single Book object or null if not found
  */
+
+/**
+ * Get a single book by ID
+ * Connected to AWS Lambda via API Gateway GET /books/{id}
+ */
 export async function getBook(id: string): Promise<Book | null> {
-  // TODO: Remove this mock implementation after deploying Lambda
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const book = mockBooks.find((b) => b.id === id);
-      resolve(book || null);
-    }, 300);
-  });
+  const response = await fetch(`${API_BASE_URL}/books/${id}`);
+  
+  if (response.status === 404) return null;
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch book: ${response.status} ${response.statusText}`);
+  }
+  
+  const data = await response.json();
+  
+  // Lambda Proxy Integration (Lambda'nın body içinde string döndürmesi durumu)
+  if (data.body && typeof data.body === 'string') {
+    return JSON.parse(data.body);
+  }
+  
+  return data;
 }
 
 /**

@@ -1,8 +1,3 @@
-![AWS](https://img.shields.io/badge/AWS-Serverless-orange)
-![React](https://img.shields.io/badge/React-19-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
-
 # Library Recommendation System
 
 An AI-powered library book recommendation system built with React, TypeScript, Tailwind CSS, and AWS serverless architecture. This is a 4-week intensive project for CENG413 Software Quality Standards course.
